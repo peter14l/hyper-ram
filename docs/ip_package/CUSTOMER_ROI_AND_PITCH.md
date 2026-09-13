@@ -42,5 +42,5 @@ HyperRAM replaces expensive physical DRAM with a tiny on-chip logic block (~24k 
 
 ## 4. Contact & Evaluation Access
 For technical evaluation requests, bit-exact C++ simulator access, or FPGA bitstreams:
-- **Licensing Portal**: licensing@hyperram-silicon.org
+- **Licensing & Inquiries**: `peter_parker_2008@outlook.com`
 - **Repository**: Open-Hardware HyperRAM Controller Initiative

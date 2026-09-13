@@ -122,4 +122,4 @@ cmake --build build --config Release
 This repository contains synthesizable Silicon IP Cores, hardware testbenches, and software simulation models.
 
 * **Academic & Evaluation License**: 30-day non-commercial evaluation permitted under NDA.
-* **Commercial Tape-Out Licensing**: Contact `licensing@hyperram-silicon.org` for production RTL access and per-unit royalty terms.
+* **Commercial Tape-Out Licensing**: Contact `peter_parker_2008@outlook.com` for production RTL access and per-unit royalty terms.
