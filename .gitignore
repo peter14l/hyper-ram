@@ -1,0 +1,15 @@
+# .gitignore for standalone HyperRAM repository
+build/
+bin/
+*.exe
+*.obj
+*.lib
+*.pdb
+*.ilk
+*.vvp
+*.vcd
+.vs/
+.vscode/
+x64/
+Release/
+Debug/
