@@ -18,26 +18,18 @@ CompressedLine BDIEngine::Compress(const void* src_64b) noexcept {
     CompressedLine result;
     if (!src_64b) return result;
 
-    const uint8_t* raw_bytes = static_cast<const uint8_t*>(src_64b);
+    // Prepare representations
+    std::array<int64_t, 8> words64;
+    std::memcpy(words64.data(), src_64b, 64);
 
     // 1. Check All ZEROS (1-byte tag)
-    bool all_zero = true;
-    for (size_t i = 0; i < CACHE_LINE_SIZE; ++i) {
-        if (raw_bytes[i] != 0) {
-            all_zero = false;
-            break;
-        }
-    }
+    bool all_zero = std::all_of(words64.begin(), words64.end(), [](int64_t w) { return w == 0; });
     if (all_zero) {
         result.pattern = BDIPattern::ZEROS;
         result.compressed_size = 1;
         result.data[0] = static_cast<uint8_t>(BDIPattern::ZEROS);
         return result;
     }
-
-    // Prepare representations
-    std::array<int64_t, 8> words64;
-    std::memcpy(words64.data(), src_64b, 64);
 
     std::array<int32_t, 16> words32;
     std::memcpy(words32.data(), src_64b, 64);
@@ -184,22 +176,22 @@ CompressedLine BDIEngine::Compress(const void* src_64b) noexcept {
         return result;
     }
 
-    // 9. Fallback: Uncompressed (64 bytes + 1 byte tag = 65 bytes)
+    // 9. Fallback: Uncompressed (64 bytes raw payload)
     result.pattern = BDIPattern::UNCOMPRESSED;
-    result.compressed_size = 64; // Stored as 64 bytes in uncompressed slot
+    result.compressed_size = 64;
     result.data[0] = static_cast<uint8_t>(BDIPattern::UNCOMPRESSED);
-    std::memcpy(&result.data[1], src_64b, 64);
+    std::memcpy(result.data.data(), src_64b, 64);
     return result;
 }
 
 bool BDIEngine::Decompress(const CompressedLine& comp, void* dest_64b) noexcept {
-    return DecompressRaw(comp.data.data(), comp.compressed_size, dest_64b);
+    return DecompressRaw(comp.data.data(), comp.compressed_size, dest_64b, comp.pattern);
 }
 
-bool BDIEngine::DecompressRaw(const uint8_t* comp_buffer, size_t comp_size, void* dest_64b) noexcept {
+bool BDIEngine::DecompressRaw(const uint8_t* comp_buffer, size_t comp_size, void* dest_64b, std::optional<BDIPattern> explicit_pattern) noexcept {
     if (!comp_buffer || !dest_64b || comp_size == 0) return false;
 
-    BDIPattern pattern = static_cast<BDIPattern>(comp_buffer[0]);
+    BDIPattern pattern = explicit_pattern.value_or(static_cast<BDIPattern>(comp_buffer[0]));
 
     switch (pattern) {
         case BDIPattern::ZEROS: {
@@ -300,8 +292,8 @@ bool BDIEngine::DecompressRaw(const uint8_t* comp_buffer, size_t comp_size, void
         }
 
         case BDIPattern::UNCOMPRESSED: {
-            // Uncompressed line payload starts at index 1
-            std::memcpy(dest_64b, &comp_buffer[1], CACHE_LINE_SIZE);
+            // Uncompressed line is stored as 64 raw bytes directly
+            std::memcpy(dest_64b, comp_buffer, CACHE_LINE_SIZE);
             return true;
         }
 

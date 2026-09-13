@@ -58,8 +58,8 @@ public:
     // Returns true on success, false if corrupted
     static bool Decompress(const CompressedLine& comp, void* dest_64b) noexcept;
 
-    // Raw buffer decompressor (reads directly from tag + payload buffer)
-    static bool DecompressRaw(const uint8_t* comp_buffer, size_t comp_size, void* dest_64b) noexcept;
+    // Raw buffer decompressor (reads directly from tag + payload buffer or explicit pattern)
+    static bool DecompressRaw(const uint8_t* comp_buffer, size_t comp_size, void* dest_64b, std::optional<BDIPattern> explicit_pattern = std::nullopt) noexcept;
 
     // Helper: returns the allocated slot size (16, 32, 48, or 64 bytes)
     static uint8_t GetQuantizedSlotSize(uint8_t raw_compressed_size) noexcept;

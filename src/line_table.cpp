@@ -158,7 +158,7 @@ bool MemoryLineTable::LoadLine(uint64_t logical_line_idx, void* dest_64b) const 
     size_t byte_src = static_cast<size_t>(entry.phys_chunk_offset) * SLOT_CHUNK_SIZE;
     size_t comp_size = entry.allocated_chunks * SLOT_CHUNK_SIZE;
 
-    return BDIEngine::DecompressRaw(physical_dram_.get() + byte_src, comp_size, dest_64b);
+    return BDIEngine::DecompressRaw(physical_dram_.get() + byte_src, comp_size, dest_64b, static_cast<BDIPattern>(entry.pattern_tag));
 }
 
 LineTableEntry MemoryLineTable::GetEntry(uint64_t logical_line_idx) const noexcept {

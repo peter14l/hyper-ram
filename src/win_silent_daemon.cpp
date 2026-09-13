@@ -1,16 +1,10 @@
 // Copyright (c) 2026 HyperRAM Project. All Rights Reserved.
 // Native Windows 24x7 Silent Background Daemon (Headless / Subsystem:Windows)
 // Zero-Swap Anti-Freeze Memory Compactor for 4GB / 8GB PCs
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#include <windows.h>
-#include <psapi.h>
-#include <tlhelp32.h>
+#include "win_mem_utils.hpp"
 #include <chrono>
 #include <thread>
 #include <atomic>
-#include <string>
-#include <fstream>
 
 namespace {
     std::atomic<bool> g_running{true};
@@ -18,66 +12,7 @@ namespace {
     const double MIN_AVAIL_GB      = 0.85;  // Auto-compact when free RAM < 850 MB
 }
 
-struct SystemRAMInfo {
-    DWORD memory_load_pct;
-    double total_phys_gb;
-    double avail_phys_gb;
-    double used_phys_gb;
-};
-
-SystemRAMInfo GetRAMStatus() {
-    MEMORYSTATUSEX mem{};
-    mem.dwLength = sizeof(mem);
-    GlobalMemoryStatusEx(&mem);
-
-    SystemRAMInfo info;
-    info.memory_load_pct = mem.dwMemoryLoad;
-    info.total_phys_gb = static_cast<double>(mem.ullTotalPhys) / (1024.0 * 1024.0 * 1024.0);
-    info.avail_phys_gb = static_cast<double>(mem.ullAvailPhys) / (1024.0 * 1024.0 * 1024.0);
-    info.used_phys_gb  = info.total_phys_gb - info.avail_phys_gb;
-    return info;
-}
-
-// Get PID of current active foreground window so we don't disrupt active typing or gaming
-DWORD GetForegroundPID() {
-    HWND hwnd = GetForegroundWindow();
-    if (!hwnd) return 0;
-    DWORD pid = 0;
-    GetWindowThreadProcessId(hwnd, &pid);
-    return pid;
-}
-
-// Compacts working set across accessible background processes
-size_t PerformWorkingSetCompaction(DWORD skip_pid = 0) {
-    HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-    if (snapshot == INVALID_HANDLE_VALUE) return 0;
-
-    PROCESSENTRY32 pe{};
-    pe.dwSize = sizeof(pe);
-
-    size_t processes_compacted = 0;
-    DWORD my_pid = GetCurrentProcessId();
-
-    if (Process32First(snapshot, &pe)) {
-        do {
-            // Skip kernel idle, current process, and active foreground window
-            if (pe.th32ProcessID <= 4 || pe.th32ProcessID == my_pid || pe.th32ProcessID == skip_pid) {
-                continue;
-            }
-
-            HANDLE hProcess = OpenProcess(PROCESS_SET_QUOTA | PROCESS_QUERY_INFORMATION, FALSE, pe.th32ProcessID);
-            if (hProcess) {
-                if (EmptyWorkingSet(hProcess)) {
-                    processes_compacted++;
-                }
-                CloseHandle(hProcess);
-            }
-        } while (Process32Next(snapshot, &pe));
-    }
-
-    CloseHandle(snapshot);
-    return processes_compacted;
-}
+using namespace hyper_ram::win;
 
 // Pure Windows GUI Subsystem Entry Point (Zero Console Window, 100% Invisible)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {

@@ -1,0 +1,69 @@
+name: HyperRAM Silicon IP & C++ Continuous Integration
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  cpp_verification:
+    name: C++20 Golden Model & Unit Tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        build_type: [Release]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure CMake
+        run: cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+
+      - name: Build C++ Test Suite
+        run: cmake --build build --config ${{ matrix.build_type }}
+
+      - name: Run Lossless BDI Unit & Stress Tests
+        run: |
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            .\build\Release\hyper_ram_tests.exe
+          else
+            ./build/hyper_ram_tests
+          fi
+        shell: bash
+
+      - name: Run Simulation Benchmark
+        run: |
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            .\build\Release\hyper_ram_sim.exe
+          else
+            ./build/hyper_ram_sim
+          fi
+        shell: bash
+
+  hdl_verilog_verification:
+    name: RTL Verilog & AXI4 Top Simulation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Icarus Verilog
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y iverilog
+
+      - name: Compile Synthesizable Verilog Testbench
+        run: |
+          iverilog -g2012 -o hyper_ram_tb.vvp \
+            hdl/axi_async_fifo.v \
+            hdl/bdi_encoder_64b.v \
+            hdl/bdi_decoder_64b.v \
+            hdl/hyper_ram_axi_top.v \
+            hdl/tb_hyper_ram_top.v
+
+      - name: Run Hardware RTL Simulation
+        run: vvp hyper_ram_tb.vvp
