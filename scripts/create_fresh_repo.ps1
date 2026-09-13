@@ -3,7 +3,8 @@ Write-Host "     Creating Standalone GitHub Repository for HyperRAM             
 Write-Host "========================================================================" -ForegroundColor Cyan
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-Set-Location $scriptDir
+$rootDir = Split-Path -Parent $scriptDir
+Set-Location $rootDir
 
 # 1. Initialize local git in hyper_ram folder
 if (-not (Test-Path ".git")) {

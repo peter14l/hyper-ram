@@ -39,4 +39,10 @@ if (WIN32)
         src/win_optimizer.cpp
     )
     target_link_libraries(HyperRAM_Optimizer PRIVATE psapi)
+
+    # 100% Silent 24x7 Background Daemon (Zero console window, WIN32 GUI subsystem)
+    add_executable(HyperRAM_SilentDaemon WIN32
+        src/win_silent_daemon.cpp
+    )
+    target_link_libraries(HyperRAM_SilentDaemon PRIVATE psapi)
 endif()

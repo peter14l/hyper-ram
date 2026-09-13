@@ -73,9 +73,16 @@ hyper_ram/
 ├── docs/
 │   ├── ARCHITECTURE.md             # Detailed memory hierarchy specification
 │   ├── BDI_COMPRESSION_SPEC.md     # Bit-level algorithmic specification
+│   ├── verification_report.html    # Interactive benchmark & test report dashboard
 │   └── pitch_and_grants/
 │       ├── EXECUTIVE_SUMMARY.md    # Commercialization & startup pitch deck outline
 │       └── GRANT_PROPOSAL.md       # Semiconductor hardware grant draft (MeitY DLI)
+├── scripts/
+│   ├── build_optimizer.bat         # Fast MSVC one-click builder for Windows binaries
+│   ├── run_daemon_24x7.bat         # Launch real-time TUI monitor daemon
+│   ├── run_silent_background.ps1   # Launch 100% invisible background memory optimizer
+│   ├── enable_autostart_24x7.ps1   # Register HyperRAM to run automatically on Windows boot
+│   └── run_simulation_and_waveform.ps1 # Run RTL testbench & generate VCD waveform trace
 └── CMakeLists.txt                  # Standalone CMake build configuration
 ```
 

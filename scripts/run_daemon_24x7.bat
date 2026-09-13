@@ -6,13 +6,15 @@ echo   Target: Windows 11 on 4GB / 8GB Low-RAM PCs
 echo ======================================================================
 echo.
 
-if exist "%~dp0HyperRAM_Optimizer.exe" (
-    "%~dp0HyperRAM_Optimizer.exe" %*
-) else if exist "%~dp0build\Release\HyperRAM_Optimizer.exe" (
-    "%~dp0build\Release\HyperRAM_Optimizer.exe" %*
+cd /d "%~dp0\.."
+
+if exist "%CD%\HyperRAM_Optimizer.exe" (
+    "%CD%\HyperRAM_Optimizer.exe" %*
+) else if exist "%CD%\build\Release\HyperRAM_Optimizer.exe" (
+    "%CD%\build\Release\HyperRAM_Optimizer.exe" %*
 ) else (
     echo [!] Executable not found. Please compile first by running:
-    echo     powershell -ExecutionPolicy Bypass -File "%~dp0build_optimizer.ps1"
+    echo     scripts\build_optimizer.bat
     echo.
     pause
 )

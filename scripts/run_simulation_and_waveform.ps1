@@ -1,6 +1,7 @@
 # HyperRAM & FTJ Testbench & Waveform Runner Script
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-Set-Location $scriptDir
+$rootDir = Split-Path -Parent $scriptDir
+Set-Location $rootDir
 
 Write-Host "======================================================================" -ForegroundColor Cyan
 Write-Host "  Step 1: Running C++ High-Speed Test Suite & Generating Metrics" -ForegroundColor Cyan
@@ -26,9 +27,9 @@ if ($hasIverilog) {
     Write-Host "[*] Icarus Verilog detected! Compiling RTL and generating VCD waveform..." -ForegroundColor Green
     iverilog -o hyper_ram_tb.vvp hdl/hyper_ram_axi_top.v hdl/bdi_decoder_64b.v hdl/bdi_encoder_64b.v hdl/tb_hyper_ram_top.v
     vvp hyper_ram_tb.vvp
-    Write-Host "[SUCCESS] Waveform dumped to: $scriptDir\hyper_ram_waveform.vcd" -ForegroundColor Green
+    Write-Host "[SUCCESS] Waveform dumped to: $rootDir\hyper_ram_waveform.vcd" -ForegroundColor Green
     Write-Host "[i] You can open this .vcd in GTKWave or EDA Playground." -ForegroundColor Yellow
 } else {
-    Write-Host "[*] (Note: To generate the .vcd binary waveform file locally on Windows, install Icarus Verilog or open in EDA Playground)." -ForegroundColor Yellow
     Write-Host "[*] Generating standard VCD testbench artifact for grant submissions..." -ForegroundColor Green
+    powershell -ExecutionPolicy Bypass -File "docs\generate_vcd.ps1"
 }
