@@ -27,8 +27,10 @@ jobs:
 
       - name: Run Lossless BDI Unit & Stress Tests
         run: |
-          if [ "${{ runner.os }}" = "Windows" ]; then
-            .\build\Release\hyper_ram_tests.exe
+          if [ -f "./build/Release/hyper_ram_tests.exe" ]; then
+            ./build/Release/hyper_ram_tests.exe
+          elif [ -f "./build/hyper_ram_tests.exe" ]; then
+            ./build/hyper_ram_tests.exe
           else
             ./build/hyper_ram_tests
           fi
@@ -36,8 +38,10 @@ jobs:
 
       - name: Run Simulation Benchmark
         run: |
-          if [ "${{ runner.os }}" = "Windows" ]; then
-            .\build\Release\hyper_ram_sim.exe
+          if [ -f "./build/Release/hyper_ram_sim.exe" ]; then
+            ./build/Release/hyper_ram_sim.exe
+          elif [ -f "./build/hyper_ram_sim.exe" ]; then
+            ./build/hyper_ram_sim.exe
           else
             ./build/hyper_ram_sim
           fi
