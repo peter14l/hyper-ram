@@ -26,8 +26,6 @@
 | 📄 [**HYPERRAM_IP_DATASHEET.md**](docs/ip_package/HYPERRAM_IP_DATASHEET.md) | Full architectural specifications, TSMC 28nm/16nm/7nm PPA synthesis metrics, pinouts, and timing budgets. |
 | 🛠️ [**IP_INTEGRATION_GUIDE.md**](docs/ip_package/IP_INTEGRATION_GUIDE.md) | SoC integration manual, Synopsys Design Compiler TCL scripts, SDC timing constraints, and Vivado IP-XACT instructions. |
 | 💰 [**CUSTOMER_ROI_AND_PITCH.md**](docs/ip_package/CUSTOMER_ROI_AND_PITCH.md) | Executive whitepaper, OEM financial return models, and commercial licensing tiers. |
-| 🎯 [**INVESTOR_CHEAT_SHEET.md**](docs/INVESTOR_CHEAT_SHEET.md) | 3-minute pitch script and technical Q&A armor for founder calls. |
-| 📋 [**7_DAY_LAUNCH_CHECKLIST.md**](docs/7_DAY_LAUNCH_CHECKLIST.md) | Day-by-day customer outreach roadmap for booking evaluation calls. |
 
 ---
 
@@ -87,9 +85,6 @@ hyper_ram/
 │   ├── hyper_ram_axi_top.v         # Production AXI4-Full synthesizable memory controller
 │   └── tb_hyper_ram_top.v          # Self-checking clock-accurate AXI4 RTL testbench
 ├── docs/
-│   ├── TEAM_PLAYBOOK.md            # Multi-role autonomous execution guide
-│   ├── INVESTOR_CHEAT_SHEET.md     # 3-minute pitch script & technical Q&A armor
-│   ├── 7_DAY_LAUNCH_CHECKLIST.md   # Day-by-day customer outreach roadmap
 │   └── ip_package/
 │       ├── HYPERRAM_IP_DATASHEET.md# Commercial IP datasheet with TSMC PPA synthesis metrics
 │       ├── IP_INTEGRATION_GUIDE.md # SoC integration manual with Synopsys/Vivado scripts
