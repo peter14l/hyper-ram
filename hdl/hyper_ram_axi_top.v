@@ -115,10 +115,10 @@ module hyper_ram_axi_top #(
         .clk              (aclk),
         .rst_n            (aresetn),
         .decompress_en    (dec_decompress_en),
-        .pattern_tag_in   (dec_pattern_tag),
+        .pattern_tag      (dec_pattern_tag),
         .comp_data_in     (dec_comp_data),
-        .decomp_line_out  (dec_line_out),
-        .decomp_valid     (dec_valid)
+        .line_data_out    (dec_line_out),
+        .decompress_valid (dec_valid)
     );
 
     // ------------------------------------------------------------------------
