@@ -39,8 +39,12 @@ void PrintTelemetrySummary(const std::string& workload_name, const MemoryTelemet
     std::cout << std::left << std::setw(32) << "Physical DRAM Consumed:" << (tel.physical_bytes_stored / (1024 * 1024)) << " MB\n";
     std::cout << std::left << std::setw(32) << "Effective Compression Ratio:" << "\033[1;32m" << tel.compression_ratio << "x\033[0m\n";
     std::cout << std::left << std::setw(32) << "Silicon Area / RAM Savings:" << "\033[1;32m" << tel.memory_savings_pct << " %\033[0m\n";
-    std::cout << std::left << std::setw(32) << "Avg Read Latency (with Decomp):" << tel.avg_read_latency_ns << " ns\n";
-    std::cout << std::left << std::setw(32) << "Avg Write Latency (with Comp):" << tel.avg_write_latency_ns << " ns\n";
+    size_t total_lines = (tel.total_bytes_read + tel.total_bytes_written) / (2 * CACHE_LINE_SIZE);
+    double per_line_read_lat = (total_lines > 0) ? (tel.avg_read_latency_ns / total_lines) : 50.0;
+    double per_line_write_lat = (total_lines > 0) ? (tel.avg_write_latency_ns / total_lines) : 50.0;
+
+    std::cout << std::left << std::setw(32) << "Avg Read Latency (with Decomp):" << per_line_read_lat << " ns\n";
+    std::cout << std::left << std::setw(32) << "Avg Write Latency (with Comp):" << per_line_write_lat << " ns\n";
     std::cout << "-------------------------------------------------------------------\n";
 
     std::cout << "BDI Compression Pattern Breakdown:\n";
@@ -71,13 +75,26 @@ void RunWorkload(HyperRAMController& ctrl, const std::string& name, size_t total
 
     if (type == 0) {
         // Web Browser / Application Heap Simulation:
-        // ~40% zeros, 35% pointers with small deltas, 25% string text
+        // Cache lines containing pointers to contiguous objects + zero pages
         uint64_t* ptrs = reinterpret_cast<uint64_t*>(buffer.data());
         size_t count = total_bytes / 8;
         uint64_t base_ptr = 0x7FFF'8000'0000ULL;
-        for (size_t i = 0; i < count; ++i) {
-            if (i % 5 == 0) ptrs[i] = 0; // zero page
-            else ptrs[i] = base_ptr + (rng() % 500); // pointer delta
+        for (size_t line = 0; line < count / 8; ++line) {
+            if (line % 4 == 0) {
+                // Zero page / empty buffer line
+                for (size_t j = 0; j < 8; ++j) ptrs[line * 8 + j] = 0;
+            } else if (line % 4 == 1) {
+                // Repeated word line (e.g. uninitialized / sentinel flags)
+                uint64_t val = base_ptr + (line * 64);
+                for (size_t j = 0; j < 8; ++j) ptrs[line * 8 + j] = val;
+            } else {
+                // Pointer table / VTable / AST node references with small 1-byte / 2-byte deltas
+                uint64_t line_base = base_ptr + (line * 1024);
+                ptrs[line * 8 + 0] = line_base;
+                for (size_t j = 1; j < 8; ++j) {
+                    ptrs[line * 8 + j] = line_base + static_cast<int64_t>(j * 8 + (rng() % 16));
+                }
+            }
         }
     } else if (type == 1) {
         // AI Model KV-Cache Tensor Simulation:
